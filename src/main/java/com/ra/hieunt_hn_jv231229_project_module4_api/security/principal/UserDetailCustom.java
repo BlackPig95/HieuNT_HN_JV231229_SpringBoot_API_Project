@@ -18,8 +18,14 @@ public class UserDetailCustom implements UserDetails
 {
     private String username;
     private String email;
+    private String fullname;
+    private String avatar;
+    private String phone;
+    private String address;
+    private Boolean status;
+    private Date createdAt = new Date();
+    private Date updatedAt;
     private String password;
-    private Set<Role> roles;
     private Collection<? extends GrantedAuthority> authorities;
 
     @Override

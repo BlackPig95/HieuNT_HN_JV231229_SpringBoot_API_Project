@@ -19,6 +19,6 @@ public class JwtEntryPoint implements AuthenticationEntryPoint
     {
         log.error("Authentication failed {}", authException.getMessage());
         response.setStatus(401);
-        response.getWriter().write("Need authentication");
+        response.getWriter().write("Not authenticated, can't access. Please sign in first");
     }
 }

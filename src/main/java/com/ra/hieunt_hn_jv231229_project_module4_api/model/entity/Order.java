@@ -37,10 +37,10 @@ public class Order
     @Column(name = "receive_phone", length = 15)
     private String receivePhone;
     @Column(name = "created_at")
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    @Temporal(TemporalType.DATE)
     private Date createdAt = new Date();
     @Column(name = "received_at")
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    @Temporal(TemporalType.DATE)
     private Date receivedAt;
 
     @ManyToOne

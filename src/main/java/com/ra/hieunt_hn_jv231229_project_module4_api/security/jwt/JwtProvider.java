@@ -23,7 +23,6 @@ public class JwtProvider
     public String createToken(UserDetails userDetails)
     {
         Date today = new Date();
-
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(today)
