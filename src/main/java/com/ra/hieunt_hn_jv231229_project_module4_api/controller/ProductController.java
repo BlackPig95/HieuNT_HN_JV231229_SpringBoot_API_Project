@@ -68,4 +68,16 @@ public class ProductController
                 .message(String.format("The latest %s products", limit))
                 .build(), http);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> findProductByNameOrDes(@RequestParam(name = "productName", defaultValue = "") String productName,
+                                                    @RequestParam(name = "productDes", defaultValue = "") String productDes)
+    {
+        return new ResponseEntity<>(CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(productService.findByNameOrDesc(productName, productDes))
+                .message("List of products found")
+                .build(), http);
+    }
 }

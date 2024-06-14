@@ -13,6 +13,7 @@ import java.util.List;
 @Repository
 public interface IProductRepo extends JpaRepository<Product, Long>, PagingAndSortingRepository<Product, Long>
 {
+    @Query("select p from Product p where p.productId in (select distinct o.compositeKey.product.productId from OrderDetail o)")
     Page<Product> findAll(Pageable pageable);
 
     @Query("select p from Product p where p.category.categoryId = :catId")
@@ -20,4 +21,6 @@ public interface IProductRepo extends JpaRepository<Product, Long>, PagingAndSor
 
     @Query("select p from Product p order by p.createdAt desc limit :limit")
     List<Product> findNewestProducts(Integer limit);
+
+    List<Product> findProductsByProductNameContainingOrDescriptionContaining(String productName, String description);
 }

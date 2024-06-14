@@ -45,4 +45,18 @@ public class ProductServiceImpl implements IProductService
     {
         return productRepo.findNewestProducts(limit);
     }
+
+    @Override
+    public List<Product> findByNameOrDesc(String productName, String productDescription)
+    {
+        if (productName.isEmpty())
+        {
+            productName = null;
+        }
+        if (productDescription.isEmpty())
+        {
+            productDescription = null;
+        }
+        return productRepo.findProductsByProductNameContainingOrDescriptionContaining(productName, productDescription);
+    }
 }

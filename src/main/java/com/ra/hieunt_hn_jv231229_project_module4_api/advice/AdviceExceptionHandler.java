@@ -6,6 +6,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
@@ -89,6 +90,18 @@ public class AdviceExceptionHandler
                 .status(http)
                 .data(e.getMessage())
                 .message(e.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public CustomResponseEntity<String> handleMissingParam(MissingServletRequestParameterException e)
+    {
+        HttpStatus http = HttpStatus.BAD_REQUEST;
+        return CustomResponseEntity.<String>builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(e.getMessage())
+                .message("Missing required parameter")
                 .build();
     }
 }
