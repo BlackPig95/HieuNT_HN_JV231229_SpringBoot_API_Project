@@ -27,7 +27,7 @@ public class User
     @Column(name = "fullname", length = 100, nullable = false)
     private String fullname;
     @Column(name = "status")
-    private Boolean status;
+    private Boolean status = true;
     @Column(name = "password")
     private String password;
     @Column(name = "avatar", length = 255)
@@ -37,10 +37,10 @@ public class User
     @Column(name = "address", length = 255, nullable = false)
     private String address;
     @Column(name = "created_at")
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    @Temporal(TemporalType.DATE)
     private Date createdAt = new Date();
     @Column(name = "updated_at")
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    @Temporal(TemporalType.DATE)
     private Date updatedAt;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",

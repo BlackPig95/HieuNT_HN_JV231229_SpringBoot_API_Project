@@ -19,6 +19,6 @@ public class AccessDenied implements AccessDeniedHandler
     {
         log.error("Authorization failed {}", accessDeniedException.getMessage());
         response.setStatus(403);
-        response.getWriter().write("Need permission");
+        response.getWriter().write("Forbidden. Need admin authorization");
     }
 }

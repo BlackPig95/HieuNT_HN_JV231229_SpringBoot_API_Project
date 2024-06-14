@@ -24,7 +24,7 @@ public class Product
     private Long productId;
     @Column(name = "sku", length = 100, unique = true)
     @UUID
-    private String sku;
+    private String sku = java.util.UUID.randomUUID().toString();
     @Column(name = "product_name", length = 100, nullable = false, unique = true)
     private String productName;
     @Column(name = "description")
@@ -37,10 +37,10 @@ public class Product
     @Column(name = "image")
     private String image;
     @Column(name = "created_at")
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    @Temporal(TemporalType.DATE)
     private Date createdAt = new Date();
     @Column(name = "updated_at")
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    @Temporal(TemporalType.DATE)
     private Date updatedAt;
 
     @ManyToOne
