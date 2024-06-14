@@ -3,6 +3,7 @@ package com.ra.hieunt_hn_jv231229_project_module4_api.service.implementation;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.constants.RoleName;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.UserPageableResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.User;
+import com.ra.hieunt_hn_jv231229_project_module4_api.objectmapper.UserMapper;
 import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IUserRepo;
 import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IUserService;
 import lombok.RequiredArgsConstructor;
@@ -34,36 +35,14 @@ public class UserServiceImpl implements IUserService
         {
             throw new RuntimeException("Out of size of user list");
         }
-        return userPage.map(user -> UserPageableResponse.builder()
-                .userId(user.getUserId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .fullname(user.getFullname())
-                .status(user.getStatus())
-                .avatar(user.getAvatar())
-                .phone(user.getPhone())
-                .address(user.getAddress())
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .build());
+        return userPage.map(UserMapper::toUserPageableResponse);
     }
 
     @Override
     public List<UserPageableResponse> findAllUsersByName(String fullname)
     {
         List<User> userList = userRepo.findUsersByFullnameContaining(fullname);
-        return userList.stream().map(u -> UserPageableResponse.builder()
-                .userId(u.getUserId())
-                .username(u.getUsername())
-                .email(u.getEmail())
-                .fullname(u.getFullname())
-                .status(u.getStatus())
-                .avatar(u.getAvatar())
-                .phone(u.getPhone())
-                .address(u.getAddress())
-                .createdAt(u.getCreatedAt())
-                .updatedAt(u.getUpdatedAt())
-                .build()).toList();
+        return userList.stream().map(UserMapper::toUserPageableResponse).toList();
     }
 
     @Override

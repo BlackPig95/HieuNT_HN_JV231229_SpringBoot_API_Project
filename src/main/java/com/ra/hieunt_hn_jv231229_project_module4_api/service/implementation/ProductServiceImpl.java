@@ -1,6 +1,8 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.service.implementation;
 
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.ProductResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Product;
+import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IOrderDetailrepo;
 import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IProductRepo;
 import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IProductService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import java.util.List;
 public class ProductServiceImpl implements IProductService
 {
     private final IProductRepo productRepo;
+    private final IOrderDetailrepo orderDetailrepo;
 
     @Override
     public Page<Product> findProductsPageable(Pageable pageable)
@@ -58,5 +61,19 @@ public class ProductServiceImpl implements IProductService
             productDescription = null;
         }
         return productRepo.findProductsByProductNameContainingOrDescriptionContaining(productName, productDescription);
+    }
+
+    @Override
+    public List<ProductResponse> findBestSellerProducts(Integer limit)
+    {
+        List<Product> products = productRepo.findBestSellerProducts(limit);
+        return products.stream().map(p -> ProductResponse.builder()
+                .productId(p.getProductId())
+                .productName(p.getProductName())
+                .description(p.getDescription())
+                .unitPrice(p.getUnitPrice())
+                .stockQuantity(p.getStockQuantity())
+                .soldQuantity(orderDetailrepo.findQuantityPerProduct(p.getProductId()))
+                .build()).toList();
     }
 }
