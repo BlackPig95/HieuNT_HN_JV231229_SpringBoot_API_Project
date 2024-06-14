@@ -1,5 +1,6 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.service.design;
 
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.ProductResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +19,6 @@ public interface IProductService
     List<Product> findNewestProducts(Integer limit);
 
     List<Product> findByNameOrDesc(String productName, String productDescription);
+
+    List<ProductResponse> findBestSellerProducts(Integer limit);
 }

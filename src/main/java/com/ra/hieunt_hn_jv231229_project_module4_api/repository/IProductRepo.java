@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 public interface IProductRepo extends JpaRepository<Product, Long>, PagingAndSortingRepository<Product, Long>
-{
+{   //Check whether the productId is present in OrderDetail or not, if present => Product sold
     @Query("select p from Product p where p.productId in (select distinct o.compositeKey.product.productId from OrderDetail o)")
     Page<Product> findAll(Pageable pageable);
 
@@ -23,4 +23,9 @@ public interface IProductRepo extends JpaRepository<Product, Long>, PagingAndSor
     List<Product> findNewestProducts(Integer limit);
 
     List<Product> findProductsByProductNameContainingOrDescriptionContaining(String productName, String description);
+
+    //Based on total quantity sold in all OrderDetails with the same productId
+    @Query("select p from Product p left join OrderDetail od on p.productId=od.compositeKey.product.productId " +
+            "group by p.productId order by sum(od.orderQuantity) desc limit :limit")
+    List<Product> findBestSellerProducts(Integer limit);
 }

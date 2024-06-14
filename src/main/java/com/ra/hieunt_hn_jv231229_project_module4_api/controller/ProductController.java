@@ -1,6 +1,7 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.controller;
 
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.CustomResponseEntity;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.ProductResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Product;
 import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IProductService;
 import lombok.RequiredArgsConstructor;
@@ -79,5 +80,16 @@ public class ProductController
                 .data(productService.findByNameOrDesc(productName, productDes))
                 .message("List of products found")
                 .build(), http);
+    }
+
+    @GetMapping("/best-seller-products")
+    public CustomResponseEntity<List<ProductResponse>> bestSellerProducts(@RequestParam(name = "limit", defaultValue = "3") Integer limit)
+    {
+        return CustomResponseEntity.<List<ProductResponse>>builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(productService.findBestSellerProducts(limit))
+                .message("List of best sellers products")
+                .build();
     }
 }
