@@ -5,6 +5,7 @@ import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.CustomRe
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -40,7 +41,7 @@ public class AdviceExceptionHandler
         return CustomResponseEntity.<String>builder()
                 .statusCode(http.value())
                 .status(http)
-                .data("Bad request")
+                .data(e.getMessage())
                 .message("Please ensure all sign up fields are correct")
                 .build();
     }
@@ -57,15 +58,15 @@ public class AdviceExceptionHandler
                 .build();
     }
 
-    @ExceptionHandler(MethodNotAllowedException.class)
-    public CustomResponseEntity<String> handleMethodNotAllowed(MethodNotAllowedException e)
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public CustomResponseEntity<String> handleMethodNotAllowed(HttpRequestMethodNotSupportedException e)
     {
         HttpStatus http = HttpStatus.METHOD_NOT_ALLOWED;
         return CustomResponseEntity.<String>builder()
                 .statusCode(http.value())
                 .status(http)
-                .data("Method not allowed")
-                .message("Method type is not correct")
+                .data(e.getMessage())
+                .message("Method type " + e.getMethod() + " is not correct")
                 .build();
     }
 
