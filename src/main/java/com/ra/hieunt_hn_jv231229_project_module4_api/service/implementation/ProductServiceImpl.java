@@ -51,7 +51,7 @@ public class ProductServiceImpl implements IProductService
 
     @Override
     public List<Product> findByNameOrDesc(String productName, String productDescription)
-    {
+    {   //Avoid search method return all products if one parameter is empty string
         if (productName.isEmpty())
         {
             productName = null;

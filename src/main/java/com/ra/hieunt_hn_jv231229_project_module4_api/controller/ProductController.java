@@ -23,7 +23,7 @@ public class ProductController
     private final IProductService productService;
     private final HttpStatus http = HttpStatus.OK;
 
-    @GetMapping
+    @GetMapping//Get list of sold products with pagination and sorting
     public ResponseEntity<?> listProducstSold(@PageableDefault(page = 0, size = 3,
             sort = "productId", direction = Sort.Direction.ASC) Pageable pageable)
     {
@@ -36,7 +36,7 @@ public class ProductController
                 .build(), http);
     }
 
-    @GetMapping("/{productId}")
+    @GetMapping("/{productId}")//Find product based on product Id
     public ResponseEntity<?> findProductById(@PathVariable Long productId)
     {
         return new ResponseEntity<>(CustomResponseEntity.builder()
@@ -47,7 +47,7 @@ public class ProductController
                 .build(), http);
     }
 
-    @GetMapping("/categories/{categoryId}")
+    @GetMapping("/categories/{categoryId}")//Find product based on category Id
     public ResponseEntity<?> findProductsByCat(@PathVariable Long categoryId)
     {
         List<Product> productList = productService.findProductsByCategory(categoryId);
@@ -59,7 +59,7 @@ public class ProductController
                 .build(), http);
     }
 
-    @GetMapping("/new-products")
+    @GetMapping("/new-products")//Find out the newest products (latest createdAt)
     public ResponseEntity<?> findNewestProducts(@RequestParam(name = "limit", defaultValue = "3") Integer limit)
     {
         return new ResponseEntity<>(CustomResponseEntity.builder()
@@ -70,7 +70,7 @@ public class ProductController
                 .build(), http);
     }
 
-    @GetMapping("/search")
+    @GetMapping("/search")//Search product by name or description
     public ResponseEntity<?> findProductByNameOrDes(@RequestParam(name = "productName", defaultValue = "") String productName,
                                                     @RequestParam(name = "productDes", defaultValue = "") String productDes)
     {
@@ -82,7 +82,8 @@ public class ProductController
                 .build(), http);
     }
 
-    @GetMapping("/best-seller-products")
+    //Find out best-seller / most notable/featured products
+    @GetMapping({"/best-seller-products", "/featured-products"})
     public CustomResponseEntity<List<ProductResponse>> bestSellerProducts(@RequestParam(name = "limit", defaultValue = "3") Integer limit)
     {
         return CustomResponseEntity.<List<ProductResponse>>builder()
