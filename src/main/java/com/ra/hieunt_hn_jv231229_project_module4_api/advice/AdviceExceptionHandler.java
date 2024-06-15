@@ -4,14 +4,12 @@ import com.ra.hieunt_hn_jv231229_project_module4_api.exception.CustomException;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.CustomResponseEntity;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.server.MethodNotAllowedException;
+
 
 import java.util.HashMap;
 import java.util.Map;
