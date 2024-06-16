@@ -1,5 +1,6 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
@@ -24,7 +25,7 @@ public class Product
     private Long productId;
     @Column(name = "sku", length = 100, unique = true)
     @UUID
-    private String sku = java.util.UUID.randomUUID().toString();
+    private String sku;
     @Column(name = "product_name", length = 100, nullable = false, unique = true)
     private String productName;
     @Column(name = "description")
@@ -38,9 +39,11 @@ public class Product
     private String image;
     @Column(name = "created_at")
     @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date createdAt = new Date();
     @Column(name = "updated_at")
     @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date updatedAt;
 
     @ManyToOne
