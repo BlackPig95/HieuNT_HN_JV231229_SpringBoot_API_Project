@@ -34,7 +34,7 @@ public class AuthController
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<?> signIn(@RequestBody FormSignIn formSignIn) throws CustomException
+    public ResponseEntity<?> signIn(@Valid @RequestBody FormSignIn formSignIn) throws CustomException
     {
         JwtUserResponse userSignedin = authService.signIn(formSignIn);
         return new ResponseEntity<>(CustomResponseEntity.<JwtUserResponse>builder()

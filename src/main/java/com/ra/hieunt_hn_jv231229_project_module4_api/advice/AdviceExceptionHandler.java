@@ -28,7 +28,7 @@ public class AdviceExceptionHandler
                 .statusCode(http.value())
                 .status(http)
                 .data(errors)
-                .message("Invalid arguments .Please ensure all sign up fields are correct")
+                .message("Invalid arguments .Please ensure all fields are correct")
                 .build();
     }
 
@@ -40,7 +40,7 @@ public class AdviceExceptionHandler
                 .statusCode(http.value())
                 .status(http)
                 .data(e.getMessage())
-                .message("Please ensure all sign up fields are correct")
+                .message("Please ensure all fields are correct")
                 .build();
     }
 

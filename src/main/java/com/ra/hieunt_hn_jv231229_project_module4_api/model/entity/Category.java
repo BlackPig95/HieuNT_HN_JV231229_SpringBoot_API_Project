@@ -1,6 +1,7 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Entity
