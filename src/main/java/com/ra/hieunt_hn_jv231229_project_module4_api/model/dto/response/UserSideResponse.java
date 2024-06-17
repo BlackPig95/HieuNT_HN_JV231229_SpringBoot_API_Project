@@ -1,27 +1,21 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import lombok.*;
-
-import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class UserPageableResponse
+public class UserSideResponse
 {
-    private Long userId;
     private String username;
     private String email;
     private String fullname;
-    private Boolean status;
+    private String password;
     private String avatar;
     private String phone;
     private String address;
-    @JsonFormat(pattern = "dd-MM-yyyy")
-    private Date createdAt;
-    @JsonFormat(pattern = "dd-MM-yyyy")
-    private Date updatedAt;
+    private String accessToken;
 }

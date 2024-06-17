@@ -79,6 +79,7 @@ public class AuthServiceImpl implements IAuthService
                 .username(userDetailCustom.getUsername())
                 .email(userDetailCustom.getEmail())
                 .fullname(userDetailCustom.getFullname())
+//                .password(userDetailCustom.getPassword())
                 .status(userDetailCustom.getStatus())
                 .avatar(userDetailCustom.getAvatar())
                 .phone(userDetailCustom.getPhone())

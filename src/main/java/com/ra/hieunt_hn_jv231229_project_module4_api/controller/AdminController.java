@@ -7,10 +7,7 @@ import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.UserPage
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Category;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Product;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.User;
-import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.ICategoryService;
-import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IProductService;
-import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IRoleService;
-import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IUserService;
+import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.*;
 import com.ra.hieunt_hn_jv231229_project_module4_api.util.FormatCategoryData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +33,7 @@ public class AdminController
     private final HttpStatus http = HttpStatus.OK;
     private final ICategoryService categoryService;
     private final IProductService productService;
+    private final IOrderService orderService;
 
     @GetMapping("/users")//Get list user with pagination and sorting
     public ResponseEntity<?> listUser(@PageableDefault(page = 0, size = 3,
@@ -209,6 +207,53 @@ public class AdminController
                 .status(http)
                 .data(productService.findById(productId))
                 .message("Information on product with Id: " + productId)
+                .build();
+    }
+
+    @GetMapping("/orders")//Get list of all orders currently available
+    public CustomResponseEntity<?> allOrders()
+    {
+        return CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(orderService.findAllOrders())
+                .message("All orders currently available")
+                .build();
+    }
+
+    @PutMapping("/orders/{orderId}/status")//Update/Edit order status
+    public CustomResponseEntity<?> updateOrderStatus(@PathVariable(name = "orderId") Long orderId, @RequestParam(name = "status") String newOrderStatus)
+    {
+        return CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data("New order status: " + orderService.updateOrderStatus(orderId, newOrderStatus).getStatus())
+                .message("Updated status of the order")
+                .build();
+    }
+
+    @GetMapping("/orders/{orderId}")//Get detailed information on the order
+    public CustomResponseEntity<?> orderDetailsInfo(@PathVariable(name = "orderId") Long orderId)
+    {
+        return CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(orderService.findOrderAndDetails(orderId))
+                .message("Detailed information of the order")
+                .build();
+    }
+
+    //Have to change API URL due to ambiguous mapping with the above URL
+    //to retrieve information on order by passing in Id
+    //(both GET method with the same url pattern)
+    @GetMapping("/orders/status/{orderStatus}")//List of orders based on status
+    public CustomResponseEntity<?> ordersHavingStatus(@PathVariable String orderStatus)
+    {
+        return CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(orderService.findOrdersByStatus(orderStatus))
+                .message("List of Order having status of: " + orderStatus.toUpperCase())
                 .build();
     }
 }

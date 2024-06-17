@@ -28,7 +28,7 @@ public interface IProductRepo extends JpaRepository<Product, Long>, PagingAndSor
     List<Product> findProductsByProductNameContainingOrDescriptionContaining(String productName, String description);
 
     //Based on total quantity sold in all OrderDetails with the same productId
-    @Query("select p from Product p left join OrderDetail od on p.productId=od.compositeKey.product.productId " +
+    @Query("select p from Product p join OrderDetail od on p.productId=od.compositeKey.product.productId " +
             "group by p.productId order by sum(od.orderQuantity) desc limit :limit")
     List<Product> findBestSellerProducts(Integer limit);
 
