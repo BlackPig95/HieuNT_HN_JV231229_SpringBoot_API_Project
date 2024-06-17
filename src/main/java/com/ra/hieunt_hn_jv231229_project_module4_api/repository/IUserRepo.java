@@ -26,6 +26,8 @@ public interface IUserRepo extends JpaRepository<User, Long>, PagingAndSortingRe
 
     List<User> findUsersByFullnameContaining(String fullname);
 
+    @Query("select u.phone from User u")
+    List<String> findAllPhone();
 //    @Modifying
 //    @Transactional
 //    @Query("update User u set u.status = not (u.status) where u.userId = :id")

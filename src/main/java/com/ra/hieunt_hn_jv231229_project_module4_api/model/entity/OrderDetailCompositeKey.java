@@ -4,10 +4,16 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import lombok.*;
 
 import java.util.List;
 
 @Embeddable
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 public class OrderDetailCompositeKey
 {
     @ManyToOne

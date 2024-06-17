@@ -28,6 +28,7 @@ public class UserDetailServiceCustom implements UserDetailsService
         {
             User user = optionalUser.get();
             return UserDetailCustom.builder()
+                    .userId(user.getUserId())
                     .username(user.getUsername())
                     .email(user.getEmail())
                     .fullname(user.getFullname())

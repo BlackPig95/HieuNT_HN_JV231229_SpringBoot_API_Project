@@ -1,10 +1,12 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.controller;
 
 import com.ra.hieunt_hn_jv231229_project_module4_api.exception.CustomException;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.constants.RoleName;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.FormSignIn;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.FormSignUp;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.CustomResponseEntity;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.JwtUserResponse;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.UserSideResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IAuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +38,12 @@ public class AuthController
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@Valid @RequestBody FormSignIn formSignIn) throws CustomException
     {
-        JwtUserResponse userSignedin = authService.signIn(formSignIn);
-        return new ResponseEntity<>(CustomResponseEntity.<JwtUserResponse>builder()
+        JwtUserResponse userSignedIn = authService.signIn(formSignIn);
+
+        return new ResponseEntity<>(CustomResponseEntity.builder()
                 .statusCode(HttpStatus.OK.value())
                 .status(HttpStatus.OK)
-                .data(userSignedin)
+                .data(userSignedIn)
                 .message("Login successfully")
                 .build(), HttpStatus.OK);
     }

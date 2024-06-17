@@ -4,11 +4,13 @@ import com.ra.hieunt_hn_jv231229_project_module4_api.exception.CustomException;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.CustomResponseEntity;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 
 import java.util.HashMap;
@@ -101,6 +103,30 @@ public class AdviceExceptionHandler
                 .status(http)
                 .data(e.getMessage())
                 .message("Missing required parameter")
+                .build();
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public CustomResponseEntity<String> handleNoResource(NoResourceFoundException e)
+    {
+        HttpStatus http = HttpStatus.NOT_FOUND;
+        return CustomResponseEntity.<String>builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(e.getMessage())
+                .message("Page not available")
+                .build();
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public CustomResponseEntity<String> handleUserNameNotFound(UsernameNotFoundException e)
+    {
+        HttpStatus http = HttpStatus.NOT_FOUND;
+        return CustomResponseEntity.<String>builder()
+                .statusCode(http.value())
+                .status(http)
+                .data("Username not exist")
+                .message(e.getMessage())
                 .build();
     }
 }

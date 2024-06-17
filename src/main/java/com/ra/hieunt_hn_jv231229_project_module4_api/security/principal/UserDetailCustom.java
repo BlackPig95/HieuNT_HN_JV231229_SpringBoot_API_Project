@@ -16,6 +16,7 @@ import java.util.*;
 @Builder
 public class UserDetailCustom implements UserDetails
 {
+    private Long userId;
     private String username;
     private String email;
     private String fullname;
