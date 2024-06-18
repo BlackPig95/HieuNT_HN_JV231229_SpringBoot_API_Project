@@ -14,4 +14,7 @@ public interface IOrderDetailrepo extends JpaRepository<OrderDetail, Long>
             "o.compositeKey.product.productId = :productId " +
             "group by o.compositeKey.product.productId")
     Integer findQuantityPerProduct(Long productId);
+
+    List<OrderDetail> findAllByCompositeKeyOrderOrderId(Long orderId);
+
 }

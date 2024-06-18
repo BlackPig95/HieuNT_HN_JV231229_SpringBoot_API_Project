@@ -7,10 +7,10 @@ import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Order;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.OrderDetail;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Product;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.User;
-import com.ra.hieunt_hn_jv231229_project_module4_api.repository.ICategoryRepo;
 import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IOrderRepo;
 import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IProductRepo;
 import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IOrderService;
+import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -122,5 +122,11 @@ public class OrderServiceImpl implements IOrderService
         }
         throw new RuntimeException("Can't find orders because the status chosen is not valid. " +
                 "Please choose one of the status in this list: 'WAITING','CONFIRM','DELIVERY','SUCCESS','CANCEL','DENIED'");
+    }
+
+    @Override//Support method to get list of OrderId attached to the currently signed in user
+    public List<Long> findOrdersIdByUserId(Long userId)
+    {
+        return orderRepo.findOrdersIdByUserId(userId);
     }
 }

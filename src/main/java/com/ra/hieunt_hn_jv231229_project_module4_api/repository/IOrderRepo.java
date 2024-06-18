@@ -19,4 +19,7 @@ public interface IOrderRepo extends JpaRepository<Order, Long>
     List<Object[]> getOrderAndDetail(Long orderId);
 
     List<Order> findOrdersByStatus(OrderStatus status);
+
+    @Query("select o.orderId from Order o where o.user.userId = :userId")
+    List<Long> findOrdersIdByUserId(Long userId);
 }
