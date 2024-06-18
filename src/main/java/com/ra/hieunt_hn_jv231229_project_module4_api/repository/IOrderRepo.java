@@ -6,10 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public interface IOrderRepo extends JpaRepository<Order, Long>
@@ -22,4 +19,14 @@ public interface IOrderRepo extends JpaRepository<Order, Long>
 
     @Query("select o.orderId from Order o where o.user.userId = :userId")
     List<Long> findOrdersIdByUserId(Long userId);
+
+    //Select only successful order for revenue calculation
+    @Query("select o from Order o where o.receivedAt between :from and :to and o.status = 'SUCCESS'")
+    List<Order> findOrderInTime(Date from, Date to);
+
+    @Query("select o from Order o where o.status='SUCCESS'")
+    List<Order> findOrdersByStatusSuccess();
+
+    @Query("select sum(o.totalPrice) from Order o where o.user.userId = :userId group by o.user.userId")
+    Double findTotalPricePerUser(Long userId);
 }

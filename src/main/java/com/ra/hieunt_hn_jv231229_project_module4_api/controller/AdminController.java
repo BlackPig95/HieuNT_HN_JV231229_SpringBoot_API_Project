@@ -2,6 +2,7 @@ package com.ra.hieunt_hn_jv231229_project_module4_api.controller;
 
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.CategoryRequest;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.ProductRequest;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.TimeRangeRequest;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.CustomResponseEntity;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.UserPageableResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Category;
@@ -19,8 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -254,6 +253,85 @@ public class AdminController
                 .status(http)
                 .data(orderService.findOrdersByStatus(orderStatus))
                 .message("List of Order having status of: " + orderStatus.toUpperCase())
+                .build();
+    }
+
+    @PostMapping("/users/{userId}/role/{roleId}")
+    public CustomResponseEntity<?> addRoleForUser(@PathVariable(name = "userId") Long userId,
+                                                  @PathVariable(name = "roleId") Long roleId)
+    {
+        return CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(userService.addRoleForUser(userId, roleId))
+                .message("Added role for this user")
+                .build();
+    }
+
+    @DeleteMapping("/users/{userId}/role/{roleId}")
+    public CustomResponseEntity<?> deleteUserRole(@PathVariable(name = "userId") Long userId,
+                                                  @PathVariable(name = "roleId") Long roleId)
+    {
+        return CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(userService.deleteUserRole(userId, roleId))
+                .message("Deleted role for this user")
+                .build();
+    }
+
+    @GetMapping("/sales-revenue-over-time")//Get the sales revenue based on the time range passed in
+    public CustomResponseEntity<?> getRevenue(@RequestBody TimeRangeRequest timeRangeRequest)
+    {
+        return CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(orderService.findRevenueInTime(timeRangeRequest.getFrom(), timeRangeRequest.getTo()))
+                .message("Total revenue during this time")
+                .build();
+    }
+
+    @GetMapping("/reports/best-seller-products")
+    public CustomResponseEntity<?> bestSellerInTime(@RequestBody TimeRangeRequest timeRangeRequest)
+    {
+        return CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(productService.findBestSellerInTime(timeRangeRequest.getFrom(), timeRangeRequest.getTo()))
+                .message("Products sold the most during this time range")
+                .build();
+    }
+
+    @GetMapping("/reports/most-liked-products")
+    public CustomResponseEntity<?> mostLikedProducts()
+    {
+        return CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(productService.findMostLikedProducts())
+                .message("10 products added to wish list the most")
+                .build();
+    }
+
+    @GetMapping("/reports/revenue-by-category")
+    public CustomResponseEntity<?> revenueByCategory()
+    {
+        return CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(categoryService.revenueByCategory())
+                .message("Revenue per category")
+                .build();
+    }
+
+    @GetMapping("/reports/top-spending-customers")
+    public CustomResponseEntity<?> topSpendingCustomer(@RequestBody TimeRangeRequest timeRangeRequest)
+    {
+        return CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(userService.topSpendingCustomer(timeRangeRequest.getFrom(), timeRangeRequest.getTo()))
+                .message("Top 10 spending customer during this time period")
                 .build();
     }
 }
