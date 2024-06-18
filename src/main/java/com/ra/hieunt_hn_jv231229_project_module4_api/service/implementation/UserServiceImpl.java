@@ -8,15 +8,10 @@ import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.ChangeUse
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.OrderWithDetailResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.UserPageableResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.UserSideResponse;
-import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Order;
-import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.OrderDetail;
-import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Product;
-import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.User;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.UserSpendingResponse;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.*;
 import com.ra.hieunt_hn_jv231229_project_module4_api.objectmapper.UserMapper;
-import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IOrderDetailrepo;
-import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IOrderRepo;
-import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IProductRepo;
-import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IUserRepo;
+import com.ra.hieunt_hn_jv231229_project_module4_api.repository.*;
 import com.ra.hieunt_hn_jv231229_project_module4_api.security.jwt.JwtProvider;
 import com.ra.hieunt_hn_jv231229_project_module4_api.security.principal.UserDetailCustom;
 import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IOrderService;
@@ -33,10 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +42,7 @@ public class UserServiceImpl implements IUserService
     private final IOrderRepo orderRepo;
     private final IOrderDetailrepo orderDetailrepo;
     private final IProductRepo productRepo;
+    private final IRoleRepo roleRepo;
 
     @Override
     public Page<UserPageableResponse> findAllUserPageable(Pageable pageable)
@@ -257,6 +250,38 @@ public class UserServiceImpl implements IUserService
                 " .Can't cancel");
     }
 
+    @Override
+    public User addRoleForUser(Long userId, Long roleId)
+    {
+        User currentUser = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User with id " + userId + " not found"));
+        Role addedRole = roleRepo.findById(roleId).orElseThrow(() -> new RuntimeException("No such role exist"));
+        if (addedRole.getRoleName().name().equals("ROLE_ADMIN"))
+        {
+            throw new RuntimeException("It is forbidden to add administrator role for normal user");
+        }
+        //User roles is a set => Can't duplicate => No need to check duplication
+        currentUser.getRoles().add(addedRole);
+        return userRepo.save(currentUser);
+    }
+
+    @Override
+    public User deleteUserRole(Long userId, Long roleId)
+    {
+        User currentUser = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User with id " + userId + " not found"));
+        Role deletedRole = roleRepo.findById(roleId).orElseThrow(() -> new RuntimeException("No such role exist"));
+        if (currentUser.getRoles().stream().anyMatch(role -> role.getRoleName().name().equals("ROLE_ADMIN"))
+                && deletedRole.getRoleName().name().equals("ROLE_ADMIN"))
+        {//Do not allow admin to delete his own admin role
+            throw new RuntimeException("This is admin account, can't delete admin role privilege");
+        }
+        if (currentUser.getRoles().stream().noneMatch(role -> role.getRoleName().name().equals(deletedRole.getRoleName().name())))
+        {
+            throw new RuntimeException("Delete not needed. This user does not have the role " + deletedRole.getRoleName().name());
+        }
+        currentUser.getRoles().remove(deletedRole);
+        return userRepo.save(currentUser);
+    }
+
     private UserDetailCustom getCurrentUSerDetailCustom()
     {   //Support method to get the UserDetailCustom from principal
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -278,5 +303,33 @@ public class UserServiceImpl implements IUserService
                 .address(currentSignedInUser.getAddress())
                 .accessToken(userToken)
                 .build();
+    }
+
+    @Override
+    public List<UserSpendingResponse> topSpendingCustomer(Date from, Date to)
+    {
+        Date tempDate = new Date();
+        //Make sure the date can be passed in regardless of order in calendar and still
+        //provide the same result
+        if (from.after(to))
+        {
+            tempDate = from;
+            from = to;
+            to = tempDate;
+        }
+        List<User> topSpendingUsers = userRepo.topSpendingCustomer(from, to);
+        return topSpendingUsers.stream()
+                .map(user -> UserSpendingResponse.builder()
+                        .userId(user.getUserId())
+                        .username(user.getUsername())
+                        .email(user.getEmail())
+                        .fullname(user.getFullname())
+                        .status(user.getStatus())
+                        .avatar(user.getAvatar())
+                        .phone(user.getPhone())
+                        .address(user.getAddress())
+                        .roles(user.getRoles())
+                        .totalSpending(orderRepo.findTotalPricePerUser(user.getUserId()))
+                        .build()).toList();
     }
 }

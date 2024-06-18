@@ -2,16 +2,20 @@ package com.ra.hieunt_hn_jv231229_project_module4_api.service.implementation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.ProductRequest;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.MostLikedProductResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.ProductResponse;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.ProductSoldResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Category;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Product;
 import com.ra.hieunt_hn_jv231229_project_module4_api.objectmapper.ProductMapper;
 import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IOrderDetailrepo;
 import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IProductRepo;
+import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IWishListRepo;
 import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IProductService;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,6 +31,7 @@ public class ProductServiceImpl implements IProductService
     private final IProductRepo productRepo;
     private final IOrderDetailrepo orderDetailrepo;
     private final ProductMapper productMapper;
+    private final IWishListRepo wishListRepo;
 
     //Find all product that were sold (appear in orderDetail). Called by ProductController
     @Override
@@ -145,5 +150,55 @@ public class ProductServiceImpl implements IProductService
     public Product findById(Long productId)
     {
         return productRepo.findById(productId).orElseThrow(() -> new RuntimeException("Can't find any product with id: " + productId));
+    }
+
+    @Override
+    public List<ProductSoldResponse> findBestSellerInTime(Date from, Date to)
+    {
+        Date tempDate = new Date();
+        //Make sure the date can be passed in regardless of order in calendar and still
+        //provide the same result
+        if (from.after(to))
+        {
+            tempDate = from;
+            from = to;
+            to = tempDate;
+        }
+        List<Product> bestSellProductList = productRepo.findBestSellerInTime(from, to);
+        return bestSellProductList.stream()
+                .map(p -> ProductSoldResponse.builder()
+                        .productId(p.getProductId())
+                        .sku(p.getSku())
+                        .productName(p.getProductName())
+                        .description(p.getDescription())
+                        .unitPrice(p.getUnitPrice())
+                        .stockQuantity(p.getStockQuantity())
+                        .image(p.getImage())
+                        .createdAt(p.getCreatedAt())
+                        .updatedAt(p.getUpdatedAt())
+                        .categoryName(p.getCategory().getCategoryName())
+                        .numberOfProductsSold(orderDetailrepo.findQuantityPerProduct(p.getProductId()))
+                        .build()).toList();
+    }
+
+    @Override
+    public List<MostLikedProductResponse> findMostLikedProducts()
+    {
+        List<Long> mostLikeProductsId = wishListRepo.listMostLikeProductId();
+        List<Product> mostLikedProducts = mostLikeProductsId.stream().map(id -> productRepo.findById(id).orElseThrow(() -> new RuntimeException("Product not found"))).toList();
+        return mostLikedProducts.stream()
+                .map(p -> MostLikedProductResponse.builder()
+                        .productId(p.getProductId())
+                        .sku(p.getSku())
+                        .productName(p.getProductName())
+                        .description(p.getDescription())
+                        .unitPrice(p.getUnitPrice())
+                        .stockQuantity(p.getStockQuantity())
+                        .image(p.getImage())
+                        .createdAt(p.getCreatedAt())
+                        .updatedAt(p.getUpdatedAt())
+                        .categoryName(p.getCategory().getCategoryName())
+                        .timesAddedToWishList(wishListRepo.countByProductProductId(p.getProductId()))
+                        .build()).toList();
     }
 }

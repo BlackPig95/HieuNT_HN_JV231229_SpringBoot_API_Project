@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,8 +29,13 @@ public interface IUserRepo extends JpaRepository<User, Long>, PagingAndSortingRe
 
     @Query("select u.phone from User u")
     List<String> findAllPhone();
-//    @Modifying
+
+    //    @Modifying
 //    @Transactional
 //    @Query("update User u set u.status = not (u.status) where u.userId = :id")
 //    void lockUserById(Long id);
+    @Query("select u from User u join Order o on u.userId=o.user.userId " +
+            "where o.status='SUCCESS' and o.receivedAt between :from and :to " +
+            "group by u.userId order by sum(o.totalPrice) desc limit 10")
+    List<User> topSpendingCustomer(Date from, Date to);
 }

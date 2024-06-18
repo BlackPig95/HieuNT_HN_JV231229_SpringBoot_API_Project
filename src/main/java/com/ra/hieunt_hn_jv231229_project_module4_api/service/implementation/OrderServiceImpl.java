@@ -3,6 +3,7 @@ package com.ra.hieunt_hn_jv231229_project_module4_api.service.implementation;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.constants.OrderStatus;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.OrderDetailWithProductInfoResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.OrderWithDetailResponse;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.RevenueTimeResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Order;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.OrderDetail;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Product;
@@ -128,5 +129,26 @@ public class OrderServiceImpl implements IOrderService
     public List<Long> findOrdersIdByUserId(Long userId)
     {
         return orderRepo.findOrdersIdByUserId(userId);
+    }
+
+    @Override
+    public RevenueTimeResponse findRevenueInTime(Date from, Date to)
+    {
+        Date tempDate = new Date();
+        //Make sure the date can be passed in regardless of order in calendar and still
+        //provide the same result
+        if (from.after(to))
+        {
+            tempDate = from;
+            from = to;
+            to = tempDate;
+        }
+        List<Order> orderInTimeList = orderRepo.findOrderInTime(from, to);
+        Double totalRevenue = orderInTimeList.stream().mapToDouble(Order::getTotalPrice).sum();
+        return RevenueTimeResponse.builder()
+                .from(from)
+                .to(to)
+                .revenue(totalRevenue)
+                .build();
     }
 }
