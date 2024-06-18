@@ -49,10 +49,9 @@ public class AdviceExceptionHandler
     @ExceptionHandler(CustomException.class)
     public CustomResponseEntity<String> handleCustomEx(CustomException e)
     {
-        HttpStatus http = HttpStatus.UNAUTHORIZED;
         return CustomResponseEntity.<String>builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(e.getHttpStatus().value())
+                .status(e.getHttpStatus())
                 .data(e.getMessage())
                 .message(e.getMessage())
                 .build();

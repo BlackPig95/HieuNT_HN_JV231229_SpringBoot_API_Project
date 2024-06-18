@@ -1,7 +1,9 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.service.design;
 
+import com.ra.hieunt_hn_jv231229_project_module4_api.exception.CustomException;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.ChangePasswordRequest;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.ChangeUserDetailRequest;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.OrderWithDetailResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.UserPageableResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.UserSideResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.ShoppingCart;
@@ -28,4 +30,12 @@ public interface IUserService
     UserSideResponse changeUserDetails(ChangeUserDetailRequest changeRequest);
 
     User getSignedInUser();
+
+    List<OrderWithDetailResponse> getUserPurchaseHistory();
+
+    OrderWithDetailResponse getPurchaseHistoryBySerial(String serialNumber) throws CustomException;
+
+    OrderWithDetailResponse getPurchaseHistoryByStatus(String orderStatus) throws CustomException;
+
+    String cancelWaitingOrder(Long orderId);
 }

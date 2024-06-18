@@ -1,15 +1,25 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.service.implementation;
 
+import com.ra.hieunt_hn_jv231229_project_module4_api.exception.CustomException;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.constants.OrderStatus;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.constants.RoleName;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.ChangePasswordRequest;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.ChangeUserDetailRequest;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.OrderWithDetailResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.UserPageableResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.UserSideResponse;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Order;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.OrderDetail;
+import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Product;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.User;
 import com.ra.hieunt_hn_jv231229_project_module4_api.objectmapper.UserMapper;
+import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IOrderDetailrepo;
+import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IOrderRepo;
+import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IProductRepo;
 import com.ra.hieunt_hn_jv231229_project_module4_api.repository.IUserRepo;
 import com.ra.hieunt_hn_jv231229_project_module4_api.security.jwt.JwtProvider;
 import com.ra.hieunt_hn_jv231229_project_module4_api.security.principal.UserDetailCustom;
+import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IOrderService;
 import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IShoppingCartService;
 import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IUserService;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +27,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -34,6 +46,10 @@ public class UserServiceImpl implements IUserService
     private final IUserRepo userRepo;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
+    private final IOrderService orderService;
+    private final IOrderRepo orderRepo;
+    private final IOrderDetailrepo orderDetailrepo;
+    private final IProductRepo productRepo;
 
     @Override
     public Page<UserPageableResponse> findAllUserPageable(Pageable pageable)
@@ -140,6 +156,107 @@ public class UserServiceImpl implements IUserService
         return getCurrentUserResponseInfo(getCurrentUSerDetailCustom());
     }
 
+    @Override
+    public User getSignedInUser()
+    {
+        //Support method to get the User entity of the currently logged in user
+        //Extract from authentication object
+        UserDetailCustom currentUSerDetailCustom = getCurrentUSerDetailCustom();
+        return userRepo.findById(currentUSerDetailCustom.getUserId()).orElseThrow(() -> new RuntimeException("User with username " + currentUSerDetailCustom.getUsername() + " not found"));
+    }
+
+    @Override
+    public List<OrderWithDetailResponse> getUserPurchaseHistory()
+    {
+        User currentUser = getSignedInUser();
+        List<Long> orderIdList = orderService.findOrdersIdByUserId(currentUser.getUserId());
+        List<OrderWithDetailResponse> userPurchaseHistory = new ArrayList<>();
+        for (Long orderId : orderIdList)
+        {
+            OrderWithDetailResponse orderHistory = orderService.findOrderAndDetails(orderId);
+            userPurchaseHistory.add(orderHistory);
+        }
+        return userPurchaseHistory;
+    }
+
+    @Override
+    public OrderWithDetailResponse getPurchaseHistoryBySerial(String serialNumber) throws CustomException
+    {
+        List<OrderWithDetailResponse> userPurchaseHistory = getUserPurchaseHistory();
+        for (OrderWithDetailResponse orderWithDetailResponse : userPurchaseHistory)
+        {
+            if (orderWithDetailResponse.getSerialNumber().equals(serialNumber))
+            {
+                return orderWithDetailResponse;
+            }
+        }
+        throw new CustomException("Serial number did not match any order history", HttpStatus.NOT_FOUND);
+    }
+
+    @Override
+    public OrderWithDetailResponse getPurchaseHistoryByStatus(String orderStatus) throws CustomException
+    {
+        boolean legitStatus = false;
+        for (OrderStatus status : OrderStatus.values())
+        {
+            if (status.name().equalsIgnoreCase(orderStatus))
+            {
+                legitStatus = true;
+                break;
+            }
+        }
+        //If the spelling of the status word is wrong => Can't check
+        if (!legitStatus)
+        {
+            throw new CustomException("Order status is not valid, please choose one of these status: WAITING, CONFIRM, DELIVERY, SUCCESS, CANCEL, DENIED", HttpStatus.CONFLICT);
+        }
+        List<OrderWithDetailResponse> userPurchaseHistory = getUserPurchaseHistory();
+        for (OrderWithDetailResponse orderWithDetailResponse : userPurchaseHistory)
+        {
+            if (orderWithDetailResponse.getStatus().equalsIgnoreCase(orderStatus))
+            {
+                return orderWithDetailResponse;
+            }
+        }
+        throw new CustomException("There is no order history with status of: " + orderStatus.toUpperCase(), HttpStatus.NOT_FOUND);
+    }
+
+    @Override
+    public String cancelWaitingOrder(Long orderId)
+    {
+        Order order = orderRepo.findById(orderId).orElseThrow(() -> new RuntimeException("Order with id " + orderId + " not found"));
+        //Get the orderDetail entities that matches this orderId
+        List<OrderDetail> orderDetailList = orderDetailrepo.findAllByCompositeKeyOrderOrderId(orderId);
+        //Get list of products attached to these order details
+        List<Product> productList = new ArrayList<>();
+        for (OrderDetail orderDetail : orderDetailList)
+        {
+            Product product = productRepo.findById(orderDetail.getCompositeKey().getProduct().getProductId()).orElseThrow(() -> new RuntimeException("Product not found"));
+            productList.add(product);
+        }
+        if (order.getStatus().name().equals("WAITING"))
+        {
+            order.setStatus(OrderStatus.CANCEL);
+            orderRepo.save(order);
+            //After successfully cancel order, add the number of order quantity back to each product in database
+            for (Product product : productList)
+            {
+                for (OrderDetail orderDetail : orderDetailList)
+                {    //Check to make sure the productId matches the orderDetail's productId
+                    if (product.getProductId().equals(orderDetail.getCompositeKey().getProduct().getProductId()))
+                    {   //Return the amount of orderQuantity back to product's stockQuantity
+                        product.setStockQuantity(product.getStockQuantity() + orderDetail.getOrderQuantity());
+                    }
+                }
+            }
+            //Update product stock quantity in database
+            productRepo.saveAll(productList);
+            return "Order with id " + orderId + " was canceled successfully";
+        }
+        throw new RuntimeException("Order with id " + orderId + " has a status of " + order.getStatus().name() +
+                " .Can't cancel");
+    }
+
     private UserDetailCustom getCurrentUSerDetailCustom()
     {   //Support method to get the UserDetailCustom from principal
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -161,14 +278,5 @@ public class UserServiceImpl implements IUserService
                 .address(currentSignedInUser.getAddress())
                 .accessToken(userToken)
                 .build();
-    }
-
-    @Override
-    public User getSignedInUser()
-    {
-        //Support method to get the User entity of the currently logged in user
-        //Extract from authentication object
-        UserDetailCustom currentUSerDetailCustom = getCurrentUSerDetailCustom();
-        return userRepo.findById(currentUSerDetailCustom.getUserId()).orElseThrow(() -> new RuntimeException("User with username " + currentUSerDetailCustom.getUsername() + " not found"));
     }
 }

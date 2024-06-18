@@ -17,4 +17,6 @@ public interface IOrderService
     OrderWithDetailResponse findOrderAndDetails(Long orderId);
 
     List<Order> findOrdersByStatus(String status);
+
+    List<Long> findOrdersIdByUserId(Long userId);
 }

@@ -1,6 +1,7 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.service.implementation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ra.hieunt_hn_jv231229_project_module4_api.exception.CustomException;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.constants.OrderStatus;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.CartCheckoutRequest;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.ProductInCartRequest;
@@ -60,6 +61,12 @@ public class ShoppingCartServiceImpl implements IShoppingCartService
     @Override
     public List<ShoppingCartDetailsResponse> addProductToCart(ProductInCartRequest productInCartRequest)
     {
+
+        Product productAdded = productRepo.findById(productInCartRequest.getProductId()).orElseThrow(() -> new RuntimeException("This product does not exist"));
+        if (productAdded.getStockQuantity() < productInCartRequest.getQuantity())
+        {   //Check the current stock quantity to see if the product stock can meet the demand from customer
+            throw new RuntimeException(String.format("Product %s only has %d items left in storage, not enough for your request", productAdded.getProductName(), productAdded.getStockQuantity()));
+        }
         //Get the shopping cart entities that belongs to the current signed in user
         //Each user can have multiple cart items => Need to get a list
         List<ShoppingCart> shoppingCartList = getCurrentUserShoppingCartInfo();
@@ -71,6 +78,8 @@ public class ShoppingCartServiceImpl implements IShoppingCartService
                     && cart.getUser().getUserId().equals(userService.getSignedInUser().getUserId()))
             {   //If already exist => Update new quantity
                 cart.setOrderQuantity(cart.getOrderQuantity() + productInCartRequest.getQuantity());
+                //Subtract the number of product stock quantity left in storage
+                productAdded.setStockQuantity(productAdded.getStockQuantity() - productInCartRequest.getQuantity());
                 if (cart.getOrderQuantity() <= 0)
                 {
                     throw new RuntimeException("Total order quantity of product " + cart.getProduct().getProductName() + " must be greater than 0");
@@ -78,12 +87,13 @@ public class ShoppingCartServiceImpl implements IShoppingCartService
                 //There can be only 1 shopping cart entity with both productId and userId
                 //that matches the newly added product => Once found, can immediately finish loop
                 shoppingCartRepo.save(cart);
+                //Update the stock quantity
+                productRepo.save(productAdded);
                 return getResponseShoppingCarts();
             }
         }
-        //If the loop finished without returning => ProductId did not exist
+        //If the loop finished without returning => ProductId did not exist in the shopping cart
         //=> Need to create a new cart to hold this new product
-        Product productAdded = productRepo.findById(productInCartRequest.getProductId()).orElseThrow(() -> new RuntimeException("This product does not exist"));
         // Still need to check to make sure the quantity added is not smaller than 0
         if (productInCartRequest.getQuantity() <= 0)
         {
@@ -94,9 +104,14 @@ public class ShoppingCartServiceImpl implements IShoppingCartService
         //Set new productId as the foreign key
         newCart.setProduct(productAdded);
         newCart.setOrderQuantity(productInCartRequest.getQuantity());
+        //Subtract the number of product stock quantity left in storage
+        productAdded.setStockQuantity(productAdded.getStockQuantity() - productInCartRequest.getQuantity());
         //Set the currently logged-in user as the foreign key
         newCart.setUser(userService.getSignedInUser());
+        //Save new cart to database
         shoppingCartRepo.save(newCart);
+        //Update the stock quantity of the product in database
+        productRepo.save(productAdded);
         return getResponseShoppingCarts();
     }
 
@@ -106,17 +121,26 @@ public class ShoppingCartServiceImpl implements IShoppingCartService
         List<ShoppingCart> shoppingCartList = getCurrentUserShoppingCartInfo();
         //Check to see if the product exist or not
         Product updatedProduct = productRepo.findById(productInCartRequest.getProductId()).orElseThrow(() -> new RuntimeException("This product does not exist"));
+        if (productInCartRequest.getQuantity() <= 0)
+        {   //If the requested amount is smaller than 0 => Do not allow update
+            throw new RuntimeException("Total order quantity of product " + updatedProduct.getProductName() + " must be greater than 0");
+        }
         for (ShoppingCart cart : shoppingCartList)
         {   //Check if the product being chosen is already presented in the cart or not
             //Need to check both current user and productId to make sure it's the same shoppingCart
             //entity (2 foreign keys)
             if (cart.getProduct().getProductId().equals(productInCartRequest.getProductId())
                     && cart.getUser().getUserId().equals(userService.getSignedInUser().getUserId()))
-            {
-                if (productInCartRequest.getQuantity() <= 0)
-                {
-                    throw new RuntimeException("Total order quantity of product " + cart.getProduct().getProductName() + " must be greater than 0");
+            {   //For example: cartQuantity is 2, stockQuantity is 3 => Can accept an update amount of 5 items, but not 6
+                if (updatedProduct.getStockQuantity() + cart.getOrderQuantity() < productInCartRequest.getQuantity())
+                {   //Check the current stock quantity to see if the product stock can meet the demand from customer
+                    throw new RuntimeException(String.format("Product %s only has %d items left in storage, not enough for your request", updatedProduct.getProductName(), updatedProduct.getStockQuantity()));
                 }
+                //Return the quantity from current shopping cart, subtract newly requested number to get the correct
+                //stock currently left in storage
+                updatedProduct.setStockQuantity(updatedProduct.getStockQuantity() + cart.getOrderQuantity() - productInCartRequest.getQuantity());
+                //Update the product stock quantity then save to database
+                productRepo.save(updatedProduct);
                 //If already exist => Update new quantity with the quantity customer provided
                 cart.setOrderQuantity(productInCartRequest.getQuantity());
                 //There can be only 1 shopping cart entity with both productId and userId
@@ -134,7 +158,7 @@ public class ShoppingCartServiceImpl implements IShoppingCartService
     {
         List<ShoppingCart> shoppingCartList = getCurrentUserShoppingCartInfo();
         //Check to see if the product exist or not
-        Product updatedProduct = productRepo.findById(productId).orElseThrow(() -> new RuntimeException("This product does not exist"));
+        Product deletedProduct = productRepo.findById(productId).orElseThrow(() -> new RuntimeException("This product does not exist"));
         for (ShoppingCart cart : shoppingCartList)
         {   //Check if the product being chosen is already presented in the cart or not
             //Need to check both current user and productId to make sure it's the same shoppingCart
@@ -144,23 +168,39 @@ public class ShoppingCartServiceImpl implements IShoppingCartService
             {
                 //If the product exist => Delete the shopping cart entity that holds this product
                 shoppingCartRepo.delete(cart);
+                //Return the number of stock quantity to the product in database
+                deletedProduct.setStockQuantity(deletedProduct.getStockQuantity() + cart.getOrderQuantity());
+                productRepo.save(deletedProduct);
                 return getResponseShoppingCarts();
             }
         }
-        throw new RuntimeException("Can't remove item. " + updatedProduct.getProductName() + " does not exist in your shopping cart");
+        throw new RuntimeException("Can't remove item. " + deletedProduct.getProductName() + " does not exist in your shopping cart");
     }
 
     @Override
     public String clearShoppingCart()
     {
         List<ShoppingCart> shoppingCartList = getCurrentUserShoppingCartInfo();
+        List<Product> productList = new ArrayList<>();
+        for (ShoppingCart cart : shoppingCartList)
+        {
+            //Get each product that matches the product presented in shopping cart
+            Product product = productRepo.findById(cart.getProduct().getProductId()).orElse(null);
+            //Set the amount of product canceled back to stock quantity in database
+            product.setStockQuantity(product.getStockQuantity() + cart.getOrderQuantity());
+            //Add to list to update stock quantity in database
+            productList.add(product);
+        }
         shoppingCartRepo.deleteAll(shoppingCartList);
+        productRepo.saveAll(productList);
         return "Your shopping cart is cleared";
     }
 
     @Override
     public CheckoutResponse checkOutCart(CartCheckoutRequest checkoutRequest)
-    {
+    {   //There is no need to update product stock quantity in this method, because those actions are already performed
+        //in add, clear, update method above. This method only perform create order and order details based on
+        //what customer already added to the shopping cart
         User currentUser = userService.getSignedInUser();
         List<ShoppingCart> shoppingCartList = getCurrentUserShoppingCartInfo();
         //If no items in cart, don't allow checkout
@@ -214,7 +254,6 @@ public class ShoppingCartServiceImpl implements IShoppingCartService
             orderCheckoutDetail.setCompositeKey(compositeKey);
             //Add these order detail entity to the list
             orderDetailList.add(orderCheckoutDetail);
-
             CheckoutProductDetailResponse orderDetailResponse
                     = CheckoutProductDetailResponse.builder()
                     .productName(product.getProductName())
