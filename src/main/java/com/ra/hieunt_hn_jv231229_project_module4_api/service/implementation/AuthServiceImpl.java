@@ -54,7 +54,7 @@ public class AuthServiceImpl implements IAuthService
                 .fullname(formSignUp.getFullname())
                 .status(formSignUp.getStatus())
                 .password(passwordEncoder.encode(formSignUp.getPassword()))
-                .avatar(formSignUp.getAvatar() != null ? fileService.uploadFileToServer(formSignUp.getAvatar()) : "")
+                .avatar(!formSignUp.getAvatar().isEmpty() ? fileService.uploadFileToServer(formSignUp.getAvatar()) : "")
                 .phone(formSignUp.getPhone())
                 .address(formSignUp.getAddress())
                 .createdAt(new Date())

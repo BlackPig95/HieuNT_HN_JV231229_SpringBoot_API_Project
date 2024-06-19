@@ -1,5 +1,6 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.controller;
 
+import com.google.api.Http;
 import com.ra.hieunt_hn_jv231229_project_module4_api.exception.CustomException;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.*;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.CustomResponseEntity;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController
 {
-    private final HttpStatus http = HttpStatus.OK;
+    private final HttpStatus httpOk = HttpStatus.OK;
     private final IUserService userService;
     private final IShoppingCartService shoppingCartService;
     private final IAddressService addressService;
@@ -27,8 +28,8 @@ public class UserController
     public CustomResponseEntity<?> userDetails()
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(userService.informationOfTheCurrentUser())
                 .message("Your detailed information")
                 .build();
@@ -38,8 +39,8 @@ public class UserController
     public CustomResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest passwordRequest)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(userService.changePassword(passwordRequest) ? "Updated password successfully" : "Update failed. Please check your new password and confirm new password fields match")
                 .message("Change password request")
                 .build();
@@ -49,8 +50,8 @@ public class UserController
     public CustomResponseEntity<?> updateUserDetails(@Valid @RequestBody ChangeUserDetailRequest changeRequest)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(userService.changeUserDetails(changeRequest))
                 .message("Updated information")
                 .build();
@@ -60,8 +61,8 @@ public class UserController
     public CustomResponseEntity<?> productsInShoppingCart()
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(shoppingCartService.getResponseShoppingCarts())
                 .message("Your current shopping cart info")
                 .build();
@@ -71,8 +72,8 @@ public class UserController
     public CustomResponseEntity<?> addProductToShoppingCart(@RequestBody ProductInCartRequest productInCartRequest)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(HttpStatus.CREATED.value())
+                .status(HttpStatus.CREATED)
                 .data(shoppingCartService.addProductToCart(productInCartRequest))
                 .message("Added product. Here is your latest shopping cart info")
                 .build();
@@ -84,8 +85,8 @@ public class UserController
     {
         productInCartRequest.setProductId(productId);
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(shoppingCartService.updateProductQuantity(productInCartRequest))
                 .message("Updated product quantity. Here is your latest shopping cart info")
                 .build();
@@ -95,8 +96,8 @@ public class UserController
     public CustomResponseEntity<?> deleteProductInCart(@PathVariable(name = "cartItemId") Long productId)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .status(HttpStatus.NO_CONTENT)
                 .data(shoppingCartService.deleteProductInCart(productId))
                 .message("Removed product from your shopping cart. Here is your latest shopping cart info")
                 .build();
@@ -106,8 +107,8 @@ public class UserController
     public CustomResponseEntity<?> clearShoppingCart()
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .status(HttpStatus.NO_CONTENT)
                 .data(shoppingCartService.clearShoppingCart())
                 .message("No items in shopping cart")
                 .build();
@@ -117,30 +118,30 @@ public class UserController
     public CustomResponseEntity<?> checkOutCart(@RequestBody CartCheckoutRequest checkoutRequest)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(shoppingCartService.checkOutCart(checkoutRequest))
                 .message("Checkout done. Here is your order info")
                 .build();
     }
 
-    @PostMapping("/account/addresses")
+    @PostMapping("/account/addresses")//Allow user to add subsidiary/extra address
     public CustomResponseEntity<?> addNewAddress(@Valid @RequestBody AddressRequest addressRequest)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(HttpStatus.CREATED.value())
+                .status(HttpStatus.CREATED)
                 .data(addressService.addNewAddress(addressRequest))
                 .message("Request to add address completed")
                 .build();
     }
 
-    @DeleteMapping("/account/addresses/{addressId}")
+    @DeleteMapping("/account/addresses/{addressId}")//Delete extra address on user account
     public CustomResponseEntity<?> deleteAddress(@PathVariable Long addressId)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .status(HttpStatus.NO_CONTENT)
                 .data(addressService.deleteAddress(addressId))
                 .message("Request to delete address completed")
                 .build();
@@ -150,8 +151,8 @@ public class UserController
     public CustomResponseEntity<?> getAllAddress()
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(addressService.getAllAddresses())
                 .message("Your addresses info")
                 .build();
@@ -161,8 +162,8 @@ public class UserController
     public CustomResponseEntity<?> getAddressById(@PathVariable Long addressId)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(addressService.getAddressById(addressId))
                 .message("Address info of the address with Id: " + addressId)
                 .build();
@@ -172,8 +173,8 @@ public class UserController
     public CustomResponseEntity<?> getHistory()
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(userService.getUserPurchaseHistory())
                 .message("Purchase history")
                 .build();
@@ -183,8 +184,8 @@ public class UserController
     public CustomResponseEntity<?> getHistoryBySerial(@PathVariable String serialNumber) throws CustomException
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(userService.getPurchaseHistoryBySerial(serialNumber))
                 .message("Purchase history")
                 .build();
@@ -195,8 +196,8 @@ public class UserController
     public CustomResponseEntity<?> getHistoryByStatus(@PathVariable String orderStatus) throws CustomException
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(userService.getPurchaseHistoryByStatus(orderStatus))
                 .message("Purchase history")
                 .build();
@@ -206,19 +207,19 @@ public class UserController
     public CustomResponseEntity<?> cancelWaitingOrder(@PathVariable Long orderId)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(userService.cancelWaitingOrder(orderId))
                 .message("Request to cancel waiting order completed")
                 .build();
     }
 
-    @PostMapping("/wish-list")
+    @PostMapping("/wish-list")//Allow user to add product to wishlist
     public CustomResponseEntity<?> addProductToWishlist(@RequestParam Long productId) throws CustomException
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(HttpStatus.CREATED.value())
+                .status(HttpStatus.CREATED)
                 .data(wishlistService.addProductToWishlist(productId))
                 .message("Information of the product added to your wishlist")
                 .build();
@@ -228,19 +229,19 @@ public class UserController
     public CustomResponseEntity<?> getWishList() throws CustomException
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(wishlistService.getWishList())
                 .message("Here is your wishlist items")
                 .build();
     }
 
-    @DeleteMapping("/wish-list/{wishListId}")
+    @DeleteMapping("/wish-list/{wishListId}")//Delete a product from wishlist
     public CustomResponseEntity<?> deleteFromWishList(@PathVariable Long wishListId) throws CustomException
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .status(HttpStatus.NO_CONTENT)
                 .data(wishlistService.deleteProductFromWishlist(wishListId))
                 .message("This product is deleted from your wishlist")
                 .build();

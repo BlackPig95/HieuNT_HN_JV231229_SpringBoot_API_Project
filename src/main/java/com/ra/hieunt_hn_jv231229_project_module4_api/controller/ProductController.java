@@ -21,7 +21,7 @@ import java.util.List;
 public class ProductController
 {
     private final IProductService productService;
-    private final HttpStatus http = HttpStatus.OK;
+    private final HttpStatus httpOk = HttpStatus.OK;
 
     @GetMapping//Get list of sold products with pagination and sorting
     public ResponseEntity<?> listProducstSold(@PageableDefault(page = 0, size = 3,
@@ -29,22 +29,22 @@ public class ProductController
     {
         Page<Product> productPage = productService.findProductsPageable(pageable);
         return new ResponseEntity<>(CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(productPage)
                 .message("Page number " + (pageable.getPageNumber() + 1) + " / " + productPage.getTotalPages())
-                .build(), http);
+                .build(), httpOk);
     }
 
     @GetMapping("/{productId}")//Find product based on product Id
     public ResponseEntity<?> findProductById(@PathVariable Long productId)
     {
         return new ResponseEntity<>(CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(productService.findProductById(productId))
                 .message("Product Id: " + productId)
-                .build(), http);
+                .build(), httpOk);
     }
 
     @GetMapping("/categories/{categoryId}")//Find product based on category Id
@@ -52,22 +52,22 @@ public class ProductController
     {
         List<Product> productList = productService.findProductsByCategory(categoryId);
         return new ResponseEntity<>(CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(productList)
                 .message("List of products by Category: " + productList.get(0).getCategory().getCategoryName())
-                .build(), http);
+                .build(), httpOk);
     }
 
     @GetMapping("/new-products")//Find out the newest products (latest createdAt)
     public ResponseEntity<?> findNewestProducts(@RequestParam(name = "limit", defaultValue = "3") Integer limit)
     {
         return new ResponseEntity<>(CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(productService.findNewestProducts(limit))
                 .message(String.format("The latest %s products", limit))
-                .build(), http);
+                .build(), httpOk);
     }
 
     @GetMapping("/search")//Search product by name or description
@@ -75,11 +75,11 @@ public class ProductController
                                                     @RequestParam(name = "productDes", defaultValue = "") String productDes)
     {
         return new ResponseEntity<>(CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(productService.findByNameOrDesc(productName, productDes))
                 .message("List of products found")
-                .build(), http);
+                .build(), httpOk);
     }
 
     //Find out best-seller / most notable/featured products
@@ -87,8 +87,8 @@ public class ProductController
     public CustomResponseEntity<List<ProductResponse>> bestSellerProducts(@RequestParam(name = "limit", defaultValue = "3") Integer limit)
     {
         return CustomResponseEntity.<List<ProductResponse>>builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(productService.findBestSellerProducts(limit))
                 .message("List of best sellers products")
                 .build();
