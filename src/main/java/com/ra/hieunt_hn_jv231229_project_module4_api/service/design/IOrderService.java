@@ -1,14 +1,11 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.service.design;
 
-import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.OrderDetailWithProductInfoResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.OrderWithDetailResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.response.RevenueTimeResponse;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Order;
-import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.OrderDetail;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public interface IOrderService
 {
@@ -22,5 +19,9 @@ public interface IOrderService
 
     List<Long> findOrdersIdByUserId(Long userId);
 
+    //Revenue in time period
     RevenueTimeResponse findRevenueInTime(Date from, Date to);
+
+    //Only calculate the number of invoices in time period
+    Integer findNumberOfInvoicesInTimePeriod(Date from, Date to);
 }

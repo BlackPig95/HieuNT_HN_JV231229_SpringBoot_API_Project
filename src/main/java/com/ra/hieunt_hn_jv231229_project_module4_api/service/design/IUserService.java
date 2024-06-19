@@ -46,4 +46,6 @@ public interface IUserService
     User deleteUserRole(Long userId, Long roleId);
 
     List<UserSpendingResponse> topSpendingCustomer(Date from, Date to);
+
+    List<User> findNewAccountCurrentMonth();
 }

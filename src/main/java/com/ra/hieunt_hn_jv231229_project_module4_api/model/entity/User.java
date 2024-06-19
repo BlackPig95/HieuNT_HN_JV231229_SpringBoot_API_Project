@@ -1,5 +1,6 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -38,9 +39,11 @@ public class User
     private String address;
     @Column(name = "created_at")
     @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date createdAt = new Date();
     @Column(name = "updated_at")
     @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date updatedAt;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",

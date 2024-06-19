@@ -15,7 +15,6 @@ import com.ra.hieunt_hn_jv231229_project_module4_api.repository.*;
 import com.ra.hieunt_hn_jv231229_project_module4_api.security.jwt.JwtProvider;
 import com.ra.hieunt_hn_jv231229_project_module4_api.security.principal.UserDetailCustom;
 import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IOrderService;
-import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IShoppingCartService;
 import com.ra.hieunt_hn_jv231229_project_module4_api.service.design.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -331,5 +330,11 @@ public class UserServiceImpl implements IUserService
                         .roles(user.getRoles())
                         .totalSpending(orderRepo.findTotalPricePerUser(user.getUserId()))
                         .build()).toList();
+    }
+
+    @Override
+    public List<User> findNewAccountCurrentMonth()
+    {
+        return userRepo.findNewAccountsCurrentMonth();
     }
 }
