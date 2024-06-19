@@ -37,7 +37,7 @@ public class SecurityConfig
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(url -> url.requestMatchers("/api.myservice.com/v1/admin/**").hasAuthority(RoleName.ROLE_ADMIN.name())
-                        .requestMatchers("/api.myservice.com/v1/user/**").hasAuthority(RoleName.ROLE_USER.name())
+                        .requestMatchers("/api.myservice.com/v1/user/**").hasAnyAuthority(RoleName.ROLE_USER.name(), RoleName.ROLE_VIP.name())
                         .anyRequest().permitAll())
                 .authenticationProvider(authProvider())
                 .exceptionHandling(ex ->

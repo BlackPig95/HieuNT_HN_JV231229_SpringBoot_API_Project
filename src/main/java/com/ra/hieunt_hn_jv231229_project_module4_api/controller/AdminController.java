@@ -1,5 +1,6 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.controller;
 
+import com.google.api.Http;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.CategoryRequest;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.ProductRequest;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.TimeRangeRequest;
@@ -29,7 +30,7 @@ public class AdminController
 {
     private final IUserService userService;
     private final IRoleService roleService;
-    private final HttpStatus http = HttpStatus.OK;
+    private final HttpStatus httpOk = HttpStatus.OK;
     private final ICategoryService categoryService;
     private final IProductService productService;
     private final IOrderService orderService;
@@ -40,19 +41,19 @@ public class AdminController
     {
         Page<UserPageableResponse> pageUser = userService.findAllUserPageable(pageable);
         return new ResponseEntity<>(CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(pageUser)
                 .message("Page number " + (pageable.getPageNumber() + 1) + " / " + pageUser.getTotalPages())
-                .build(), http);
+                .build(), httpOk);
     }
 
     @GetMapping("/roles")//Get list of all roles available
     public ResponseEntity<?> listRoles()
     {
         return new ResponseEntity<>(CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(roleService.findAll())
                 .message("List of roles")
                 .build(), HttpStatus.OK);
@@ -62,11 +63,11 @@ public class AdminController
     public ResponseEntity<?> findUserByName(@RequestParam(name = "fullname", defaultValue = "") String fullname)
     {
         return new ResponseEntity<>(CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(userService.findAllUsersByName(fullname))
                 .message("List of user found with name similar to: " + fullname)
-                .build(), http);
+                .build(), httpOk);
     }
 
     @PutMapping("/users/{userId}")//Change user status based on Id
@@ -74,11 +75,11 @@ public class AdminController
     {
         User blockUser = userService.lockUserById(userId);
         return new ResponseEntity<>(CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data("Initial status of user " + blockUser.getUsername() + ": " + (!userService.findUserById(userId).getStatus() ? "Active" : "Blocked"))
                 .message("Updated status of user: " + (blockUser.getStatus() ? "Active" : "Blocked"))
-                .build(), http);
+                .build(), httpOk);
     }
 
     @GetMapping("/categories")//List of all categories with pagination and sorting
@@ -88,8 +89,8 @@ public class AdminController
     {
         Page<Category> pageCat = categoryService.findAll(pageable);
         return CustomResponseEntity.<Page<Category>>builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(pageCat)
                 .message("Page number " + (pageable.getPageNumber() + 1) + " / " + pageCat.getTotalPages())
                 .build();
@@ -106,8 +107,8 @@ public class AdminController
 //        dataToShow.put("Description: ", addedCategory.getDescription());
 //        dataToShow.put("Category status: ", addedCategory.getStatus() ? "Active" : "Inactive");
         return CustomResponseEntity.<Map<String, String>>builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(HttpStatus.CREATED.value())
+                .status(HttpStatus.CREATED)
                 .data(dataToShow)
                 .message("Added category")
                 .build();
@@ -120,8 +121,8 @@ public class AdminController
         Category updatedCategory = categoryService.updateCategory(categoryId, categoryRequest);
         Map<String, String> dataToShow = FormatCategoryData.formatDataToShow(updatedCategory);
         return CustomResponseEntity.<Map<String, String>>builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(dataToShow)
                 .message("Updated category")
                 .build();
@@ -132,8 +133,8 @@ public class AdminController
     {
         Category deletedCategory = categoryService.deleteCategory(categoryId);
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .status(HttpStatus.NO_CONTENT)
                 .data("Category " + deletedCategory.getCategoryName() + " is deleted")
                 .message("Request to delete category")
                 .build();
@@ -143,8 +144,8 @@ public class AdminController
     public CustomResponseEntity<?> findCategory(@PathVariable(name = "categoryId") Long categoryId)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(categoryService.findById(categoryId))
                 .message("Category information")
                 .build();
@@ -154,8 +155,8 @@ public class AdminController
     public CustomResponseEntity<?> addProduct(@Valid @ModelAttribute ProductRequest productRequest)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(HttpStatus.CREATED.value())
+                .status(HttpStatus.CREATED)
                 .data(productService.addProduct(productRequest))
                 .message("Category information")
                 .build();
@@ -168,8 +169,8 @@ public class AdminController
     {
         Page<Product> productPage = productService.findAllProductsAvailable(pageable);
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(productPage)
                 .message("All products available. Page number " + (pageable.getPageNumber() + 1) + " / " + productPage.getTotalPages())
                 .build();
@@ -179,8 +180,8 @@ public class AdminController
     public CustomResponseEntity<?> deleteProduct(@PathVariable Long productId)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .status(HttpStatus.NO_CONTENT)
                 .data(productService.deleteProduct(productId))
                 .message("Deleted product information")
                 .build();
@@ -191,8 +192,8 @@ public class AdminController
                                                  @RequestBody ProductRequest productRequest)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(productService.updateProduct(productId, productRequest))
                 .message("Updated product information")
                 .build();
@@ -202,8 +203,8 @@ public class AdminController
     public CustomResponseEntity<?> getProductById(@PathVariable Long productId)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(productService.findById(productId))
                 .message("Information on product with Id: " + productId)
                 .build();
@@ -213,8 +214,8 @@ public class AdminController
     public CustomResponseEntity<?> allOrders()
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(orderService.findAllOrders())
                 .message("All orders currently available")
                 .build();
@@ -224,8 +225,8 @@ public class AdminController
     public CustomResponseEntity<?> updateOrderStatus(@PathVariable(name = "orderId") Long orderId, @RequestParam(name = "status") String newOrderStatus)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data("New order status: " + orderService.updateOrderStatus(orderId, newOrderStatus).getStatus())
                 .message("Updated status of the order")
                 .build();
@@ -235,8 +236,8 @@ public class AdminController
     public CustomResponseEntity<?> orderDetailsInfo(@PathVariable(name = "orderId") Long orderId)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(orderService.findOrderAndDetails(orderId))
                 .message("Detailed information of the order")
                 .build();
@@ -249,8 +250,8 @@ public class AdminController
     public CustomResponseEntity<?> ordersHavingStatus(@PathVariable String orderStatus)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(orderService.findOrdersByStatus(orderStatus))
                 .message("List of Order having status of: " + orderStatus.toUpperCase())
                 .build();
@@ -261,8 +262,8 @@ public class AdminController
                                                   @PathVariable(name = "roleId") Long roleId)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(HttpStatus.CREATED.value())
+                .status(HttpStatus.CREATED)
                 .data(userService.addRoleForUser(userId, roleId))
                 .message("Added role for this user")
                 .build();
@@ -273,8 +274,8 @@ public class AdminController
                                                   @PathVariable(name = "roleId") Long roleId)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .status(HttpStatus.NO_CONTENT)
                 .data(userService.deleteUserRole(userId, roleId))
                 .message("Deleted role for this user")
                 .build();
@@ -284,30 +285,30 @@ public class AdminController
     public CustomResponseEntity<?> getRevenue(@RequestBody TimeRangeRequest timeRangeRequest)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(orderService.findRevenueInTime(timeRangeRequest.getFrom(), timeRangeRequest.getTo()))
                 .message("Total revenue during this time")
                 .build();
     }
 
-    @GetMapping("/reports/best-seller-products")
+    @GetMapping("/reports/best-seller-products")//Get list of best seller products in time period
     public CustomResponseEntity<?> bestSellerInTime(@RequestBody TimeRangeRequest timeRangeRequest)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(productService.findBestSellerInTime(timeRangeRequest.getFrom(), timeRangeRequest.getTo()))
                 .message("Products sold the most during this time range")
                 .build();
     }
 
-    @GetMapping("/reports/most-liked-products")
+    @GetMapping("/reports/most-liked-products")//List of products that were added to wish list the most
     public CustomResponseEntity<?> mostLikedProducts()
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(productService.findMostLikedProducts())
                 .message("10 products added to wish list the most")
                 .build();
@@ -317,8 +318,8 @@ public class AdminController
     public CustomResponseEntity<?> revenueByCategory()
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(categoryService.revenueByCategory())
                 .message("Revenue per category")
                 .build();
@@ -328,8 +329,8 @@ public class AdminController
     public CustomResponseEntity<?> topSpendingCustomer(@RequestBody TimeRangeRequest timeRangeRequest)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(userService.topSpendingCustomer(timeRangeRequest.getFrom(), timeRangeRequest.getTo()))
                 .message("Top 10 spending customer during this time period")
                 .build();
@@ -339,8 +340,8 @@ public class AdminController
     public CustomResponseEntity<?> newAccountsStatistics()
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(userService.findNewAccountCurrentMonth())
                 .message("List of new user accounts created in this month")
                 .build();
@@ -350,8 +351,8 @@ public class AdminController
     public CustomResponseEntity<?> invoicesInTimePeriod(@RequestBody TimeRangeRequest timeRangeRequest)
     {
         return CustomResponseEntity.builder()
-                .statusCode(http.value())
-                .status(http)
+                .statusCode(httpOk.value())
+                .status(httpOk)
                 .data(orderService.findNumberOfInvoicesInTimePeriod(timeRangeRequest.getFrom(), timeRangeRequest.getTo()))
                 .message("Number of invoices exported during this time period")
                 .build();

@@ -30,7 +30,7 @@ public class ProductMapper
                 .description(productRequest.getDescription())
                 .unitPrice(productRequest.getUnitPrice())
                 .stockQuantity(productRequest.getStockQuantity())
-                .image(productRequest.getImage() != null ? (fileService.uploadFileToServer(productRequest.getImage())) : "")
+                .image(!productRequest.getImage().isEmpty() ? (fileService.uploadFileToServer(productRequest.getImage())) : "")
                 .createdAt(productRequest.getCreatedAt())
                 .updatedAt(productRequest.getUpdatedAt())
                 .category(categoryRepo.findById(productRequest.getCategoryId()).orElseThrow(() -> new RuntimeException("Category does not exist")))
@@ -45,7 +45,7 @@ public class ProductMapper
         updatedProduct.setDescription(productRequest.getDescription());
         updatedProduct.setUnitPrice(productRequest.getUnitPrice());
         updatedProduct.setStockQuantity(productRequest.getStockQuantity());
-        updatedProduct.setImage(productRequest.getImage() != null ? (fileService.uploadFileToServer(productRequest.getImage())) : "");
+        updatedProduct.setImage(!productRequest.getImage().isEmpty() ? (fileService.uploadFileToServer(productRequest.getImage())) : "");
         //Set updatedAt but no need to set createdAt because this is update action
         updatedProduct.setUpdatedAt(new Date());
         updatedProduct.setCategory(categoryRepo.findById(productRequest.getCategoryId()).orElseThrow(() -> new RuntimeException("Category does not exist")));
