@@ -151,4 +151,19 @@ public class OrderServiceImpl implements IOrderService
                 .revenue(totalRevenue)
                 .build();
     }
+
+    @Override
+    public Integer findNumberOfInvoicesInTimePeriod(Date from, Date to)
+    {
+        Date tempDate = new Date();
+        //Make sure the date can be passed in regardless of order in calendar and still
+        //provide the same result
+        if (from.after(to))
+        {
+            tempDate = from;
+            from = to;
+            to = tempDate;
+        }
+        return orderRepo.findOrderInTime(from, to).size();
+    }
 }

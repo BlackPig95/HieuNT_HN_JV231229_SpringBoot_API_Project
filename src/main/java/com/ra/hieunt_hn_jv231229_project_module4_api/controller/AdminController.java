@@ -334,4 +334,26 @@ public class AdminController
                 .message("Top 10 spending customer during this time period")
                 .build();
     }
+
+    @GetMapping("/reports/new-accounts-this-month")
+    public CustomResponseEntity<?> newAccountsStatistics()
+    {
+        return CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(userService.findNewAccountCurrentMonth())
+                .message("List of new user accounts created in this month")
+                .build();
+    }
+
+    @GetMapping("/reports/invoices-over-time")
+    public CustomResponseEntity<?> invoicesInTimePeriod(@RequestBody TimeRangeRequest timeRangeRequest)
+    {
+        return CustomResponseEntity.builder()
+                .statusCode(http.value())
+                .status(http)
+                .data(orderService.findNumberOfInvoicesInTimePeriod(timeRangeRequest.getFrom(), timeRangeRequest.getTo()))
+                .message("Number of invoices exported during this time period")
+                .build();
+    }
 }

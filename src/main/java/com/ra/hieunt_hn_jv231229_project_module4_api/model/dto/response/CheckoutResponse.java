@@ -26,7 +26,9 @@ public class CheckoutResponse
     private String receiveName;
     private String receiveAddress;
     private String receivePhone;
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date checkoutDate;
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date expectedReceiveDate;
     private List<CheckoutProductDetailResponse> listOrderDetail;
 }

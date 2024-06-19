@@ -1,5 +1,6 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.constants.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,9 +39,11 @@ public class Order
     private String receivePhone;
     @Column(name = "created_at")
     @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date createdAt = new Date();
     @Column(name = "received_at")
     @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date receivedAt;
 
     @ManyToOne
