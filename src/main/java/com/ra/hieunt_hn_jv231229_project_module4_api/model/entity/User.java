@@ -1,6 +1,7 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ra.hieunt_hn_jv231229_project_module4_api.validator.annotation.PhoneExist;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;

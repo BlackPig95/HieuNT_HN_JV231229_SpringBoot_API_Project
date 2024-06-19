@@ -151,7 +151,7 @@ public class AdminController
     }
 
     @PostMapping("/products")//Add a new product
-    public CustomResponseEntity<?> addProduct(@Valid @RequestBody ProductRequest productRequest)
+    public CustomResponseEntity<?> addProduct(@Valid @ModelAttribute ProductRequest productRequest)
     {
         return CustomResponseEntity.builder()
                 .statusCode(http.value())

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.Set;
@@ -31,7 +32,8 @@ public class FormSignUp
     private Boolean status;
     @NotBlank(message = "Password must not be empty")
     private String password;
-    private String avatar;
+    private MultipartFile avatar;
+    //    private String avatar;
     @NotBlank(message = "Phone must not be empty")
     @Length(min = 10, max = 13, message = "Vietnamese phone number is 10 or 11 digits")
     @Pattern(regexp = "^([+]84|0)[35789][0-9]{8,9}$", message = "Not a Vietnamese number")
@@ -39,8 +41,8 @@ public class FormSignUp
     private String phone;//check unique
     @NotBlank(message = "Address must not be empty")
     private String address;
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
-    private Date createdAt = new Date();
+    //    @DateTimeFormat(pattern = "dd/MM/yyyy")
+//    private Date createdAt = new Date();
     //    @DateTimeFormat(pattern = "dd/MM/yyyy")
 //    private Date updatedAt;
     private Set<String> roles;

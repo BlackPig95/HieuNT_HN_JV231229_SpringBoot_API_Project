@@ -1,5 +1,6 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.service.implementation;
 
+import com.ra.hieunt_hn_jv231229_project_module4_api.configuration.FileService;
 import com.ra.hieunt_hn_jv231229_project_module4_api.exception.CustomException;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.constants.RoleName;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.FormSignIn;
@@ -34,9 +35,10 @@ public class AuthServiceImpl implements IAuthService
     private final IUserRepo userRepo;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
+    private final FileService fileService;
 
     @Override
-    public void signUp(FormSignUp formSignUp)
+    public User signUp(FormSignUp formSignUp)
     {
         Set<Role> roleSet = new HashSet<>();
         if (formSignUp.getRoles() == null || formSignUp.getRoles().isEmpty())
@@ -52,13 +54,13 @@ public class AuthServiceImpl implements IAuthService
                 .fullname(formSignUp.getFullname())
                 .status(formSignUp.getStatus())
                 .password(passwordEncoder.encode(formSignUp.getPassword()))
-                .avatar(formSignUp.getAvatar() != null ? formSignUp.getAvatar() : "")
+                .avatar(formSignUp.getAvatar() != null ? fileService.uploadFileToServer(formSignUp.getAvatar()) : "")
                 .phone(formSignUp.getPhone())
                 .address(formSignUp.getAddress())
-                .createdAt(formSignUp.getCreatedAt())
+                .createdAt(new Date())
                 .roles(roleSet)
                 .build();
-        userRepo.save(newUser);
+        return userRepo.save(newUser);
     }
 
     @Override
