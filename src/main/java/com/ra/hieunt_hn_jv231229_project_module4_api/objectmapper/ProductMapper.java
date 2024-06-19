@@ -1,5 +1,6 @@
 package com.ra.hieunt_hn_jv231229_project_module4_api.objectmapper;
 
+import com.ra.hieunt_hn_jv231229_project_module4_api.configuration.FileService;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.dto.request.ProductRequest;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Category;
 import com.ra.hieunt_hn_jv231229_project_module4_api.model.entity.Product;
@@ -18,6 +19,7 @@ import java.util.Date;
 public class ProductMapper
 {
     private final ICategoryRepo categoryRepo;
+    private final FileService fileService;
 
     public Product requestToProduct(ProductRequest productRequest)
     {
@@ -28,7 +30,7 @@ public class ProductMapper
                 .description(productRequest.getDescription())
                 .unitPrice(productRequest.getUnitPrice())
                 .stockQuantity(productRequest.getStockQuantity())
-                .image(productRequest.getImage())
+                .image(productRequest.getImage() != null ? (fileService.uploadFileToServer(productRequest.getImage())) : "")
                 .createdAt(productRequest.getCreatedAt())
                 .updatedAt(productRequest.getUpdatedAt())
                 .category(categoryRepo.findById(productRequest.getCategoryId()).orElseThrow(() -> new RuntimeException("Category does not exist")))
@@ -43,7 +45,7 @@ public class ProductMapper
         updatedProduct.setDescription(productRequest.getDescription());
         updatedProduct.setUnitPrice(productRequest.getUnitPrice());
         updatedProduct.setStockQuantity(productRequest.getStockQuantity());
-        updatedProduct.setImage(productRequest.getImage());
+        updatedProduct.setImage(productRequest.getImage() != null ? (fileService.uploadFileToServer(productRequest.getImage())) : "");
         //Set updatedAt but no need to set createdAt because this is update action
         updatedProduct.setUpdatedAt(new Date());
         updatedProduct.setCategory(categoryRepo.findById(productRequest.getCategoryId()).orElseThrow(() -> new RuntimeException("Category does not exist")));

@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.UUID;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -29,7 +30,8 @@ public class ProductRequest
     private Double unitPrice;
     @Min(value = 0, message = "Stock quantity can't be smaller than 0")
     private Integer stockQuantity;
-    private String image;
+    //    private String image;
+    private MultipartFile image;
     private Date createdAt = new Date();
     private Date updatedAt;
     private Long categoryId;

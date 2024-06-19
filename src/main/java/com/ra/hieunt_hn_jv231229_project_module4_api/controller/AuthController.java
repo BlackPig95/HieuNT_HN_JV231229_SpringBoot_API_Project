@@ -12,10 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api.myservice.com/v1/auth")
@@ -24,14 +21,14 @@ public class AuthController
 {
     private final IAuthService authService;
 
-    @PostMapping("/sign-up")
-    public ResponseEntity<?> signUp(@Valid @RequestBody FormSignUp formSignUp)
+    @PostMapping(value = "/sign-up")
+    public ResponseEntity<?> signUp(@Valid @ModelAttribute FormSignUp formSignUp)
     {
-        authService.signUp(formSignUp);
         return new ResponseEntity<>(CustomResponseEntity.builder()
                 .statusCode(HttpStatus.CREATED.value())
                 .status(HttpStatus.CREATED)
-                .data("Signed up successfully")
+                .data(authService.signUp(formSignUp))
+                .message("Signed up successfully")
                 .build(), HttpStatus.CREATED);
     }
 
